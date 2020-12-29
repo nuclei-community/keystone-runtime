@@ -1,18 +1,21 @@
-CROSS_COMPILE = riscv$(BITS)-unknown-linux-gnu-
+CROSS_COMPILE ?= riscv-nuclei-linux-gnu-
+ARCH ?= rv64imac
+ABI ?= lp64
+
 CC = $(CROSS_COMPILE)gcc
 OBJCOPY = $(CROSS_COMPILE)objcopy
-
 
 ifndef KEYSTONE_SDK_DIR
   $(error KEYSTONE_SDK_DIR is undefined)
 endif
 
-CFLAGS = -Wall -Werror -fPIC -fno-builtin -std=c11 -g $(OPTIONS_FLAGS)
+ARCHFLAGS = -march=$(ARCH) -mabi=$(ABI) 
+CFLAGS = $(ARCHFLAGS) -Wall -Werror -fPIC -fno-builtin -std=c11 -g $(OPTIONS_FLAGS)
 SRCS = aes.c sha256.c boot.c interrupt.c printf.c syscall.c string.c linux_wrap.c io_wrap.c rt_util.c mm.c env.c freemem.c paging.c sbi.c merkle.c page_swap.c
 ASM_SRCS = entry.S
 RUNTIME = eyrie-rt
 LINK = $(CROSS_COMPILE)ld
-LDFLAGS = -static -nostdlib $(shell $(CC) --print-file-name=libgcc.a)
+LDFLAGS = -static -nostdlib $(shell $(CC) $(ARCHFLAGS) --print-file-name=libgcc.a)
 
 SDK_LIB_DIR = $(KEYSTONE_SDK_DIR)/lib
 SDK_INCLUDE_EDGE_DIR = $(KEYSTONE_SDK_DIR)/include/edge
@@ -69,7 +72,7 @@ test:
 	$(MAKE) -C obj/test test
 
 clean:
-	rm -rf $(RUNTIME) obj
+	rm -rf $(RUNTIME) obj $(TMPLIB)
 	$(MAKE) -C tmplib clean
 	# for legacy reasons, remove any lingering uaccess.h
 	rm -f uaccess.h

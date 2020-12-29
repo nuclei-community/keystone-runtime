@@ -1,5 +1,10 @@
-CC = riscv$(BITS)-unknown-linux-gnu-gcc
-CFLAGS = -Wall -Werror -fPIC -I.
+CROSS_COMPILE ?= riscv-nuclei-linux-gnu-
+ARCH ?= rv64imac
+ABI ?= lp64
+CC = $(CROSS_COMPILE)gcc
+
+ARCHFLAGS = -march=$(ARCH) -mabi=$(ABI) 
+CFLAGS = $(ARCHFLAGS) -Wall -Werror -fPIC -I.
 
 ASM_SRCS = uaccess.S
 ASM_OBJS = $(patsubst %.S,%.o,$(ASM_SRCS))
@@ -18,4 +23,4 @@ $(ASM_OBJS): $(ASM_SRCS)
 	$(CC) $(CFLAGS) $(BUILD_DEFS) -c $<
 
 clean:
-	rm $(ASM_OBJS) $(patsubst %,../%,$(COPY_HEADERS))
+	rm -f $(ASM_OBJS) $(patsubst %,../%,$(COPY_HEADERS))
