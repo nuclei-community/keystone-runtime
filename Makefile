@@ -1,4 +1,4 @@
-CROSS_COMPILE ?= riscv-nuclei-linux-gnu-
+CROSS_COMPILE ?= riscv64-unknown-linux-gnu-
 ARCH ?= rv64imac
 ABI ?= lp64
 
